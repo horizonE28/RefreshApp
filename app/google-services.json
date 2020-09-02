@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "500673450982",
+    "firebase_url": "https://refresh-c95a5.firebaseio.com",
+    "project_id": "refresh-c95a5",
+    "storage_bucket": "refresh-c95a5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:500673450982:android:028e6cf57b50445e47fc27",
+        "android_client_info": {
+          "package_name": "com.example.refreshapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "500673450982-jb4un969udg8f5f2sucdkklbpmpeb47a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsoJZKTWxwEfe7kik1yN6eqH0R96in7fE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "500673450982-jb4un969udg8f5f2sucdkklbpmpeb47a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">ReFridge</string>
+    <string name="dashboardtitle">Dashboard</string>
+    <string name="temperatureLabel">Temperature</string>
+    <string name="freezerLabel">Freezer:</string>
+    <string name="crisperLabel">Crisper:</string>
+    <string name="noConnLabel">Not Connected</string>
+    <string name="noData">No Data</string>
+    <string name="energyLabel">Energy Consumption</string>
+    <string name="currentLabel">Current:</string>
+    <string name="powerLabel">Power Consumed:</string>
+    <string name="chillerLabel">Chiller:</string>
+    <string name="billLabel">Bills</string>
+    <string name="pmonthbillLabel">Previous Bill:</string>
+    <string name="cmonthbillLabel">Current Bill:</string>
+    <string name="noValue">No record</string>
+    <string name="refpctLabel">Fridge contribution</string>
+    <string name="lastrec">Last Recorded Data: </string>
+</resources>

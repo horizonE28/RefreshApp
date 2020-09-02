@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:label="Dashboard"
+    tools:context=".DashboardActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="10dp">
+
+            <!-- Temperature Container -->
+            <LinearLayout
+                android:id="@+id/linearLayoutTemp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dip"
+                android:background="@drawable/border"
+                android:orientation="vertical"
+                android:padding="10dip"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <!-- Temperature Header -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/temperatureLabel"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <!-- Freezer container -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dip"
+                    android:orientation="horizontal">
+
+                    <!-- Freezer label -->
+                    <TextView
+                        android:id="@+id/textViewFreezerL"
+                        android:layout_width="130dip"
+                        android:layout_height="wrap_content"
+                        android:text="@string/freezerLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- Freezer value -->
+                    <TextView
+                        android:id="@+id/textViewFreezerV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/noConnLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+                <!-- End Freezer container -->
+
+                <!-- Chiller container -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dip"
+                    android:orientation="horizontal">
+
+                    <!-- Chiller label -->
+                    <TextView
+                        android:id="@+id/textViewChillerL"
+                        android:layout_width="130dip"
+                        android:layout_height="wrap_content"
+                        android:text="@string/chillerLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- Chiller value -->
+                    <TextView
+                        android:id="@+id/textViewChillerV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/noConnLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+                <!-- End Chiller container -->
+
+                <!-- Crisper container -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dip"
+                    android:orientation="horizontal">
+
+                    <!-- Crisper label -->
+                    <TextView
+                        android:id="@+id/textViewCrisperL"
+                        android:layout_width="130dip"
+                        android:layout_height="wrap_content"
+                        android:text="@string/crisperLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- Crisper value -->
+                    <TextView
+                        android:id="@+id/textViewCrisperV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/noConnLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+                <!-- End Chiller container -->
+
+            </LinearLayout>
+            <!-- End Temperature Container -->
+
+            <!-- Energy Cost Container -->
+            <LinearLayout
+                android:id="@+id/linearLayoutEnergyCost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dip"
+                android:background="@drawable/border"
+                android:orientation="vertical"
+                android:padding="10dip"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayoutTemp">
+
+                <!-- Energy Header -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/energyLabel"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <!-- Current container -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dip"
+                    android:orientation="horizontal">
+
+                    <!-- Current label -->
+                    <TextView
+                        android:id="@+id/textViewCurrentL"
+                        android:layout_width="130dip"
+                        android:layout_height="wrap_content"
+                        android:text="@string/currentLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- Current value -->
+                    <TextView
+                        android:id="@+id/textViewCurrentV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/noConnLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+                <!-- End Current container -->
+
+                <!-- Power consumption container -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dip"
+                    android:orientation="horizontal">
+
+                    <!-- Power consumption label -->
+                    <TextView
+                        android:id="@+id/textViewPowerL"
+                        android:layout_width="130dip"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/powerLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- Power consumption value -->
+                    <TextView
+                        android:id="@+id/textViewPowerV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/noConnLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+                <!-- End Power consumption container -->
+
+                <Switch
+                    android:id="@+id/switchPowerStatus"
+                    android:layout_width="180dp"
+                    android:layout_margin="10dip"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Power Status"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            </LinearLayout>
+            <!-- End Energy Cost Container -->
+
+            <!-- Bill Container -->
+            <LinearLayout
+                android:id="@+id/linearLayoutBill"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dip"
+                android:background="@drawable/border"
+                android:orientation="vertical"
+                android:padding="10dip"
+                app:layout_constraintBottom_toTopOf="@+id/buttonLogout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <!-- Bill Header -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/billLabel"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <!-- Previous Month container -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dip"
+                    android:orientation="horizontal">
+
+                    <!-- P Month Bill label -->
+                    <TextView
+                        android:id="@+id/textViewPMonthBillL"
+                        android:layout_width="130dip"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/pmonthbillLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- P Month Bill value -->
+                    <TextView
+                        android:id="@+id/textViewPMonthBillV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/noValue"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+                <!-- End Previous Month container -->
+
+                <!-- Current Month container -->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_margin="10dip"-->
+<!--                    android:orientation="horizontal">-->
+
+<!--                    &lt;!&ndash; C Month Bill label &ndash;&gt;-->
+<!--                    <TextView-->
+<!--                        android:id="@+id/textViewCMonthBillL"-->
+<!--                        android:layout_width="130dip"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:text="@string/cmonthbillLabel"-->
+<!--                        android:textAppearance="?android:attr/textAppearanceMedium" />-->
+
+<!--                    &lt;!&ndash; C Month Bill value &ndash;&gt;-->
+<!--                    <TextView-->
+<!--                        android:id="@+id/textViewCMonthBillV"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:text="@string/noValue"-->
+<!--                        android:textAppearance="?android:attr/textAppearanceMedium" />-->
+
+<!--                </LinearLayout>-->
+                <!-- End Current Month container -->
+
+                <!-- Current Month container -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dip"
+                    android:orientation="horizontal">
+
+                    <!-- Ref Pct label -->
+                    <TextView
+                        android:id="@+id/textViewRefPctL"
+                        android:layout_width="130dip"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/refpctLabel"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- Ref Pct value -->
+                    <TextView
+                        android:id="@+id/textViewRefPctV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/noValue"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+                <!-- End Current Month container -->
+
+<!--                <EditText-->
+<!--                    android:id="@+id/editTextBillInput"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_margin="10dip"-->
+<!--                    android:inputType="numberDecimal"-->
+<!--                    android:hint="Enter new bill" />-->
+
+            </LinearLayout>
+            <!-- End Bill Container -->
+
+        </LinearLayout>
+        <!-- End Scroll Container -->
+
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:label="Power"
+    tools:context=".Power">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewPowerLastRec"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lastrec"
+                android:textAlignment="textEnd"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/graphPower"
+                android:layout_width="match_parent"
+                android:layout_height="200dip" />
+
+            <!-- Details Layout -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:text="Details for this month"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+
+                <!-- Average Current -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="10dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="220dip"
+                        android:layout_height="wrap_content"
+                        android:text="Average Current:"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- Avg Current value -->
+                    <TextView
+                        android:id="@+id/textViewPCurrVal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/noValue"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+
+                <!-- Average Opens -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="10dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="220dip"
+                        android:layout_height="wrap_content"
+                        android:text="Number of Times Opened:"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- Reed Open Count -->
+                    <TextView
+                        android:id="@+id/textViewPReedCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/noValue"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+
+                <!-- Power Consumption this Month -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="10dip"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="220dip"
+                        android:layout_height="wrap_content"
+                        android:text="Power Consumption:"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <!-- PowerConsumption -->
+                    <TextView
+                        android:id="@+id/textViewPPowerConsumption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/noValue"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
