@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 public class Temperature extends AppCompatActivity {
-    private UserC userC = new UserC();
+    //private UserC userC = new UserC();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -13,14 +13,14 @@ public class Temperature extends AppCompatActivity {
         setContentView(R.layout.activity_temperature);
         setTitle("Temperature");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        final UserC userC = (UserC) getApplicationContext();
+        userC.setTemperatureIds(this);
+        userC.setTemperatureListeners(this);
     }
 
     @Override
     protected void onStart(){
         super.onStart();
-
-        //userC.initialize();
-        userC.setTemperatureIds(this);
-        userC.setTemperatureListeners(this);
     }
 }

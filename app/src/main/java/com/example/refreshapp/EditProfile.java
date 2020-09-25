@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class EditProfile extends AppCompatActivity implements View.OnClickListener{
-    UserC userC = new UserC();
     private Button buttonUpdateProfile;
     private Button buttonCancel;
     private EditText editTextEditProfileNumber;
@@ -26,6 +25,7 @@ public class EditProfile extends AppCompatActivity implements View.OnClickListen
         editTextEditProfileNumber = findViewById( R.id.editTextProfileMobile );
         editTextEditProfileFridgeNumber = findViewById( R.id.editTextProfileFridgeNumber );
 
+        final UserC userC = (UserC) getApplicationContext();
         userC.setEditProfileIds(this);
         userC.getUserProfile(this);
 
@@ -51,6 +51,7 @@ public class EditProfile extends AppCompatActivity implements View.OnClickListen
                 err++;
             }
 
+            final UserC userC = (UserC) getApplicationContext();
             if(err == 0 && userC.updateUserProfile()){
                 Toast.makeText(this,"Profile updated successfully!", Toast.LENGTH_SHORT).show();
                 finish();

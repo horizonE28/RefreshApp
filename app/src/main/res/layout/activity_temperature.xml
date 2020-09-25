@@ -26,8 +26,8 @@
                 android:textAlignment="textEnd"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-            <com.jjoe64.graphview.GraphView
-                android:id="@+id/graphTemps"
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChartTemp"
                 android:layout_width="match_parent"
                 android:layout_height="200dip" />
 

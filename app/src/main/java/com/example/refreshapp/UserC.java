@@ -1,10 +1,13 @@
 package com.example.refreshapp;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Color;
+import android.service.autofill.DateValueSanitizer;
 import android.text.InputType;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -13,6 +16,24 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IFillFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -21,24 +42,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.jjoe64.graphview.DefaultLabelFormatter;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.LabelFormatter;
-import com.jjoe64.graphview.Viewport;
-import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
-import com.jjoe64.graphview.series.BarGraphSeries;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Random;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
-public class UserC {
+public class UserC extends Application {
     private UserData userData;
     private FirebaseUser firebaseUser;
     private FirebaseAuth firebaseAuth;
@@ -49,7 +64,7 @@ public class UserC {
     private DateTimeFormatter datetimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private DateTimeFormatter dtDispFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
     private DateTimeFormatter yearMonthFormatter = DateTimeFormatter.ofPattern("yyyyMM");
-    private SimpleDateFormat sdf = new SimpleDateFormat("MMM");
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     private SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMM");
     private Query query;
 
@@ -63,10 +78,10 @@ public class UserC {
 //    private EditText editTextBillInput;
 
     //Temperature Views
-    private GraphView graphTemp;
-    private LineGraphSeries seriesFreezer;
-    private LineGraphSeries seriesChiller;
-    private LineGraphSeries seriesCrisper;
+    private LineChart tempChart;
+    private LineDataSet dataSetFreezer;
+    private LineDataSet dataSetChiller;
+    private LineDataSet dataSetCrisper;
     private TextView textViewTempLastRec;
     private TextView textViewTFreezerVal;
     private TextView textViewTChillerVal;
@@ -75,18 +90,18 @@ public class UserC {
     private Switch switchPowerStatus;
 
     //Power Views
-    private GraphView graphPower;
-    private LineGraphSeries seriesCurrent;
-    private LineGraphSeries seriesPower;
+    private LineChart powerChart;
+    private LineDataSet dataSetCurrent;
     private TextView textViewPowerLastRec;
     private TextView textViewPowerAvgCurrent;
     private TextView textViewPowerTimesOpened;
     private TextView textViewPowerConsumption;
 
     //Bill Views
-    private GraphView graphBill;
-    private BarGraphSeries seriesBill;
-    private BarGraphSeries seriesFridge;
+    private BarChart billChart;
+    private BarDataSet dataSetBill;
+    private TextView textViewAvgBill;
+    private TextView textViewAvgFrCon;
 
     //Edit Profile Views
     private TextView textViewEditProfileName;
@@ -97,7 +112,10 @@ public class UserC {
     private EditText editTextEditProfileFridgeNumber;
 
     //  default constructor
-    public UserC(){
+    public UserC(){}
+
+    /* Get firebase instances*/
+    public void initialize(){
         try{
             firebaseAuth = FirebaseAuth.getInstance();
             firebaseUser = firebaseAuth.getCurrentUser();
@@ -170,7 +188,6 @@ public class UserC {
                         }
                     }
                     if(prev != null) {
-                        //Date d = new SimpleDateFormat("yyyyyMM").parse(prevKey);
                         String bill = String.valueOf(prev.electricityBill) + ", " + getMonthYear(prevKey);
                         textViewPMonthBillV.setText(bill);
                         textViewRefPctV.setText(String.valueOf(prev.fridgePercentage) + "%");
@@ -214,125 +231,57 @@ public class UserC {
         textViewTCrisperVal = a.findViewById( R.id.textViewTCrisperVal );
         textViewTFreezerVal = a.findViewById( R.id.textViewTFreezerVal );
         textViewTOverallVal = a.findViewById( R.id.textViewTOverallVal );
-        graphTemp = a.findViewById( R.id.graphTemps );
-
-        seriesChiller = new LineGraphSeries();
-        seriesChiller.setTitle("Chiller");
-        seriesChiller.setColor(Color.rgb(218,124,48));
-        seriesChiller.setDrawDataPoints(true);
-        seriesChiller.setDataPointsRadius(4);
-        seriesChiller.setThickness(5);
-
-        seriesFreezer = new LineGraphSeries();
-        seriesFreezer.setTitle("Freezer");
-        seriesFreezer.setColor(Color.rgb(114,147,203));
-        seriesFreezer.setDrawDataPoints(true);
-        seriesFreezer.setDataPointsRadius(4);
-        seriesFreezer.setThickness(5);
-
-        seriesCrisper = new LineGraphSeries();
-        seriesCrisper.setTitle("Crisper");
-        seriesCrisper.setColor(Color.rgb(62,150,81));
-        seriesCrisper.setDrawDataPoints(true);
-        seriesCrisper.setDataPointsRadius(4);
-        seriesCrisper.setThickness(5);
-
-        graphTemp.addSeries(seriesFreezer);
-        graphTemp.addSeries(seriesChiller);
-        graphTemp.addSeries(seriesCrisper);
-
-        graphTemp.getGridLabelRenderer().setHorizontalAxisTitle("Time");
-        graphTemp.getGridLabelRenderer().setVerticalAxisTitle("Temperature (°C)");
-        graphTemp.getGridLabelRenderer().setHorizontalLabelsVisible(false);
-        graphTemp.getGridLabelRenderer().setNumHorizontalLabels(7);
-        graphTemp.getGridLabelRenderer().setNumVerticalLabels(7);
-
-        graphTemp.getViewport().setMinY(5);
-        graphTemp.getViewport().setMaxY(30);
-        graphTemp.getViewport().setYAxisBoundsManual(true);
-        graphTemp.getViewport().setXAxisBoundsManual(true);
-        graphTemp.getViewport().setScrollable(true);
-        graphTemp.getViewport().setScrollableY(true);
-        graphTemp.getViewport().setScalable(true);
-//        graphTemp.getViewport().setScalableY(true);
-
-        graphTemp.getLegendRenderer().setVisible(true);
-        graphTemp.getLegendRenderer().setFixedPosition(2,0);
+        tempChart = a.findViewById( R.id.lineChartTemp );
+        Description d = new Description();
+        d.setText(" ");
+        tempChart.setAutoScaleMinMaxEnabled(false);
+        tempChart.setDescription(d);
     }
 
     public void setTemperatureListeners(final Context c){
         //graph listeners
-        query = fridgeDataRef.limitToLast(50);
+        query = fridgeDataRef.limitToLast(25);
 
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try{
-                    long maxT = 0, minT = 0;
-                    float maxTemp = 0, minTemp = 100;
                     float avgFreezer = 0, avgChiller = 0, avgCrisper = 0;
                     int childCount = (int) dataSnapshot.getChildrenCount();
 
                     if(childCount > 0){
-                        DataPoint[] dpFreezer = new DataPoint[childCount];
-                        DataPoint[] dpChiller = new DataPoint[childCount];
-                        DataPoint[] dpCrisper = new DataPoint[childCount];
+                        ArrayList<Entry> freezerDat = new ArrayList<>();
+                        ArrayList<Entry> chillerDat = new ArrayList<>();
+                        ArrayList<Entry> crisperDat = new ArrayList<>();
+                        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
                         int indx = 0;
 
                         for (DataSnapshot ds : dataSnapshot.getChildren()) {
                             FData data = ds.getValue(FData.class);
                             LocalDateTime dt = LocalDateTime.parse(data.timestamp, datetimeFormatter);
-                            Date x = localDateTimeToDate(dt);
+//                            long t = sdf.parse(data.timestamp).getTime();
+//                            long d = TimeUnit.MILLISECONDS.toHours(t);
+                            long x = localDateTimeToDate(dt).getTime();
 
-                            dpFreezer[indx] = new DataPoint(x, data.freezer_val);
-                            dpChiller[indx] = new DataPoint(x, data.chiller_val);
-                            dpCrisper[indx] = new DataPoint(x, data.crisper_val);
+                            freezerDat.add(new Entry(indx, data.freezer_val));
+                            chillerDat.add(new Entry(indx, data.chiller_val));
+                            crisperDat.add(new Entry(indx, data.crisper_val));
 
                             avgFreezer += data.freezer_val;
                             avgChiller += data.chiller_val;
                             avgCrisper += data.crisper_val;
 
-                            //  set graph min and max values
-                            if(indx == 29){
-                                minT = x.getTime();
-                                minTemp = data.freezer_val;
-                            }
                             if(indx == childCount-1){
-                                //graphTemp.getViewport().setMaxX(x.getTime());
-                                maxT = x.getTime();
                                 String lastrec = c.getString(R.string.lastrec) + " ";
                                 textViewTempLastRec.setText( lastrec.concat(dt.format(dtDispFormat)));
-                            }
-
-                            if(maxTemp < data.freezer_val){
-                                maxTemp = data.freezer_val;
-                            } else if(maxTemp < data.chiller_val){
-                                maxTemp = data.chiller_val;
-                            } else if(maxTemp < data.crisper_val){
-                                maxTemp = data.crisper_val;
-                            }
-
-                            if(minTemp > data.freezer_val){
-                                minTemp = data.freezer_val;
-                            } else if(minTemp > data.chiller_val){
-                                minTemp = data.chiller_val;
-                            } else if(minTemp > data.crisper_val){
-                                minTemp = data.crisper_val;
                             }
 
                             indx++;
                         }
 
-                        double offset = (.5 * (maxT - minT) / (childCount));
-
                         avgFreezer /= childCount;
                         avgChiller /= childCount;
                         avgCrisper /= childCount;
-
-                        graphTemp.getViewport().setMinX(minT - offset);
-                        graphTemp.getViewport().setMaxX(maxT + offset);
-                        graphTemp.getViewport().setMinY(minTemp - 0.5);
-                        graphTemp.getViewport().setMaxY(maxTemp + 0.5);
 
                         textViewTChillerVal.setText(String.format("%.2f", avgChiller) + " °C");
                         textViewTCrisperVal.setText(String.format("%.2f", avgCrisper) + " °C");
@@ -341,9 +290,49 @@ public class UserC {
                         float avg = (avgChiller + avgCrisper + avgFreezer) / 3;
                         textViewTOverallVal.setText(String.format("%.2f", avg) + " °C");
 
-                        seriesFreezer.resetData(dpFreezer);
-                        seriesChiller.resetData(dpChiller);
-                        seriesCrisper.resetData(dpCrisper);
+                        dataSetFreezer = new LineDataSet(freezerDat, "Freezer");
+                        dataSetFreezer.setDrawCircleHole(false);
+                        dataSetFreezer.setColor(Color.rgb(114,147,203));
+                        dataSetFreezer.setCircleColors(Color.rgb(114,147,203));
+                        dataSetFreezer.setLineWidth(2);
+                        dataSetFreezer.setCircleHoleRadius(2);
+                        dataSetFreezer.setDrawValues(false);
+
+                        dataSetChiller = new LineDataSet(chillerDat, "Chiller");
+                        dataSetChiller.setDrawCircleHole(false);
+                        dataSetChiller.setColor(Color.rgb(218,124,48));
+                        dataSetChiller.setCircleColors(Color.rgb(218,124,48));
+                        dataSetChiller.setLineWidth(2);
+                        dataSetChiller.setCircleHoleRadius(2);
+                        dataSetChiller.setDrawValues(false);
+
+                        dataSetCrisper = new LineDataSet(crisperDat, "Crisper");
+                        dataSetCrisper.setDrawCircleHole(false);
+                        dataSetCrisper.setColor(Color.rgb(62,150,81));
+                        dataSetCrisper.setCircleColors(Color.rgb(62,150,81));
+                        dataSetCrisper.setLineWidth(2);
+                        dataSetCrisper.setCircleHoleRadius(2);
+                        dataSetCrisper.setDrawValues(false);
+
+                        dataSets.add(dataSetFreezer);
+                        dataSets.add(dataSetChiller);
+                        dataSets.add(dataSetCrisper);
+
+                        tempChart.setData(new LineData(dataSets));
+                        tempChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                        tempChart.getAxisRight().setEnabled(false);
+                        tempChart.getXAxis().setAxisLineColor(Color.WHITE);
+                        tempChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                        tempChart.getXAxis().setValueFormatter(new ValueFormatter() {
+                            private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+
+                            @Override
+                            public String getFormattedValue(float value) {
+                                long millis = TimeUnit.HOURS.toMillis((long) value);
+//                                return mFormat.format(new Date(millis));
+                                    return  "";
+                            }});
+                        tempChart.animateX(2000, Easing.EaseInBack);
                     }
 
                 }catch (Exception e){ e.printStackTrace(); }
@@ -361,58 +350,12 @@ public class UserC {
         textViewPowerAvgCurrent = a.findViewById( R.id.textViewPCurrVal );
         textViewPowerTimesOpened = a.findViewById( R.id.textViewPReedCount );
         textViewPowerConsumption = a.findViewById( R.id.textViewPPowerConsumption );
-        graphPower = a.findViewById( R.id.graphPower );
 
-        seriesCurrent = new LineGraphSeries();
-        seriesCurrent.setTitle("Current (A)");
-        seriesCurrent.setColor(Color.rgb(218,124,48));
-        seriesCurrent.setDrawDataPoints(true);
-        seriesCurrent.setDataPointsRadius(8);
-        seriesCurrent.setThickness(5);
-        seriesCurrent.setDrawBackground(true);
-        seriesCurrent.setBackgroundColor(Color.rgb(255, 169, 99));
-
-        seriesPower = new LineGraphSeries();
-        seriesPower.setTitle("Power Consumption (W)");
-        seriesPower.setColor(Color.rgb(218,124,48));
-        seriesPower.setDrawDataPoints(true);
-        seriesPower.setDataPointsRadius(8);
-        seriesPower.setThickness(5);
-
-        //graphPower.addSeries(seriesPower);
-        graphPower.addSeries(seriesCurrent);
-
-        graphPower.getGridLabelRenderer().setHorizontalAxisTitle("Time");
-        graphPower.getGridLabelRenderer().setVerticalAxisTitle("Readings");
-        graphPower.getGridLabelRenderer().setHorizontalLabelsVisible(false);
-        graphPower.getGridLabelRenderer().setNumHorizontalLabels(7);
-        graphPower.getGridLabelRenderer().setNumVerticalLabels(7);
-//        graphPower.getGridLabelRenderer().setLabelFormatter(new LabelFormatter() {
-//            @Override
-//            public String formatLabel(double value, boolean isValueX) {
-//                if(isValueX)
-//                    return sdf.format((long) value);
-//
-//                return null;
-//            }
-//
-//            @Override
-//            public void setViewport(Viewport viewport) {
-//
-//            }
-//        });
-//        graphPower.getGridLabelRenderer().setHumanRounding(false);
-
-        graphPower.getViewport().setYAxisBoundsManual(true);
-        graphPower.getViewport().setXAxisBoundsManual(true);
-        graphPower.getViewport().setScrollable(true);
-        graphPower.getViewport().setScrollableY(true);
-        graphPower.getViewport().setScalable(true);
-//        graphPower.getViewport().setScalableY(true);
-
-        graphPower.getLegendRenderer().setVisible(true);
-        graphPower.getLegendRenderer().setFixedPosition(2,0);
-
+        powerChart = a.findViewById( R.id.lineChartPower );
+        Description d = new Description();
+        d.setText(" ");
+        powerChart.setAutoScaleMinMaxEnabled(false);
+        powerChart.setDescription(d);
     }
 
     public void setPowerListeners(final Context c){
@@ -423,13 +366,11 @@ public class UserC {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try {
                     int childCount = (int) dataSnapshot.getChildrenCount();
-                    long maxT = 0, minT = 0;
-                    float maxC = 0, minC = 100;
                     float avgCurrent = 0;
 
-
                     if (childCount > 0) {
-                        DataPoint[] dpCurrent = new DataPoint[childCount];
+                        ArrayList<Entry> currentDat = new ArrayList<>();
+                        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
                         int indx = 0;
 
                         for (DataSnapshot ds : dataSnapshot.getChildren()) {
@@ -437,43 +378,50 @@ public class UserC {
                             LocalDateTime dt = LocalDateTime.parse(data.timestamp, datetimeFormatter);
                             Date x = localDateTimeToDate(dt);
 
-                            dpCurrent[indx] = new DataPoint(x, data.current_val);
-
+                            currentDat.add(new Entry(indx, data.current_val));
                             avgCurrent += data.current_val;
 
-                            //  set graph min and max values
-                            if (indx == 29) {
-                                minT = x.getTime();
-                            }
                             if (indx == childCount - 1) {
-                                //graphTemp.getViewport().setMaxX(x.getTime());
-                                maxT = x.getTime();
                                 String lastrec = c.getString(R.string.lastrec) + " ";
                                 textViewPowerLastRec.setText(lastrec.concat(dt.format(dtDispFormat)));
                             }
-
-                            if(maxC < data.current_val){
-                                maxC = data.current_val;
-                            }
-                            if(minC > data.current_val){
-                                minC = data.current_val;
-                            }
-
                             indx++;
                         }
 
-                        double offset = (.5 * (maxT - minT) / (childCount - 1));
-
                         avgCurrent /= childCount;
-
-                        graphPower.getViewport().setMinX(minT - offset);
-                        graphPower.getViewport().setMaxX(maxT + offset);
-                        graphPower.getViewport().setMinY(0);
-                        graphPower.getViewport().setMaxY(maxC + 3);
 
                         textViewPowerAvgCurrent.setText(String.format("%.2f", avgCurrent) + " A");
 
-                        seriesCurrent.resetData(dpCurrent);
+                        dataSetCurrent = new LineDataSet(currentDat, "Current(A)");
+                        dataSetCurrent.setDrawCircleHole(false);
+                        dataSetCurrent.setColor(Color.rgb(218,124,48));
+                        dataSetCurrent.setCircleColors(Color.rgb(218,124,48));
+                        dataSetCurrent.setLineWidth(4);
+                        dataSetCurrent.setFillColor(Color.rgb(218,124,48));
+                        dataSetCurrent.setFillAlpha(95);
+                        dataSetCurrent.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                        dataSetCurrent.setDrawFilled(true);
+                        dataSetCurrent.setDrawValues(false);
+
+                        dataSets.add(dataSetCurrent);
+
+                        powerChart.setData(new LineData(dataSets));
+                        powerChart.getAxisLeft().setDrawGridLines(false);
+                        powerChart.getAxisRight().setEnabled(false);
+                        powerChart.getXAxis().setAxisLineColor(Color.WHITE);
+                        powerChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                        powerChart.getXAxis().setValueFormatter(new ValueFormatter() {
+                            private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+
+                            @Override
+                            public String getFormattedValue(float value) {
+
+                                long millis = TimeUnit.HOURS.toMillis((long) value);
+//                                return mFormat.format(new Date(millis));
+                                return "";
+                            }});
+                        powerChart.getXAxis().setLabelCount(5);
+                        powerChart.animateX(2500);
                     }
                 }
                 catch (Exception e){ e.printStackTrace(); }
@@ -512,65 +460,14 @@ public class UserC {
     }
 
     public void setBillIds(final Activity a){
-        graphBill = a.findViewById( R.id.graphBill );
+        billChart = a.findViewById( R.id.barChartBill );
+        Description d = new Description();
+        d.setText(" ");
+        billChart.setAutoScaleMinMaxEnabled(false);
+        billChart.setDescription(d);
 
-        seriesBill = new BarGraphSeries();
-        seriesBill.setSpacing(20);
-        seriesBill.setDrawValuesOnTop(true);
-        seriesBill.setTitle("Bills");
-        seriesBill.setValuesOnTopColor(seriesBill.getColor());
-
-        seriesFridge = new BarGraphSeries();
-        seriesFridge.setSpacing(20);
-        seriesFridge.setDrawValuesOnTop(true);
-        seriesFridge.setColor(Color.rgb(62,150,81));
-        seriesFridge.setValuesOnTopColor(Color.rgb(62,150,81));
-        seriesFridge.setTitle("Fridge Contribution");
-
-        graphBill.addSeries(seriesBill);
-        graphBill.addSeries(seriesFridge);
-
-        graphBill.getGridLabelRenderer().setHorizontalAxisTitle("Month");
-        graphBill.getGridLabelRenderer().setVerticalAxisTitle("Bills");
-        graphBill.getGridLabelRenderer().setHorizontalLabelsVisible(true);
-        graphBill.getGridLabelRenderer().setNumHorizontalLabels(5);
-        graphBill.getGridLabelRenderer().setNumVerticalLabels(7);
-        graphBill.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter()
-        {
-            @Override
-            public String formatLabel(double value, boolean isValueX) {
-                try {
-                    if (isValueX && value > 1) {
-                        Date d = new Date((long)value);
-                        return sdf.format(d);
-//                        String s = Double.toString(value);
-//                        if (s.length() >= 6) {
-//                            s = s.substring(0, 6);
-//                            Date d = sdf2.parse(s);
-//                            return sdf.format(d);
-//                        } else {
-//                            return super.formatLabel(0, isValueX);
-//                        }
-                    } else {
-                        return super.formatLabel(value, isValueX);
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                    return super.formatLabel(value, isValueX);
-                }
-            }
-        });
-
-        graphBill.getViewport().setYAxisBoundsManual(false);
-        graphBill.getViewport().setXAxisBoundsManual(true);
-        graphBill.getViewport().setScrollable(true);
-        graphBill.getViewport().setScrollableY(false);
-        graphBill.getViewport().setScalable(true);
-
-        graphBill.getLegendRenderer().setVisible(true);
-        graphBill.getLegendRenderer().setTextColor(Color.WHITE);
-        graphBill.getLegendRenderer().setFixedPosition(graphBill.getGraphContentWidth(),0);
-//        graphBill.getLegendRenderer().setTextSize(12);
+        textViewAvgBill = a.findViewById( R.id.textViewAvgBill );
+        textViewAvgFrCon = a.findViewById( R.id.textViewAvgFridgeCont );
     }
 
     public void setBillListeners(final Context c){
@@ -581,37 +478,65 @@ public class UserC {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try{
                     int childCount = (int) dataSnapshot.getChildrenCount();
-                    double lowest = 0, highest = 0;
                     if (childCount > 0){
-                        DataPoint[] dpBills = new DataPoint[childCount-2];
-                        DataPoint[] dpFridge = new DataPoint[childCount-2];
                         int indx = 0;
+                        float ref = 0;
+                        float avgBill = 0;
+                        float avgFr = 0;
+                        int[] colors = new int[] {Color.rgb(62,150,81), Color.rgb(114,147,203)};
+                        final ArrayList<String> months = new ArrayList<>();
+                        final int[] monthlist = new int[12];
+                        months.add("Jan");
+                        months.add("Feb");
+                        months.add("Mar");
+                        months.add("Apr");
+                        months.add("May");
+                        months.add("Jun");
+                        months.add("Jul");
+                        months.add("Aug");
+                        months.add("Sep");
+                        months.add("Oct");
+                        months.add("Nov");
+                        months.add("Dec");
+
+                        ArrayList<BarEntry> billEntries = new ArrayList<>();
+                        ArrayList<IBarDataSet> dataset = new ArrayList<>();
 
                         for(DataSnapshot ds: dataSnapshot.getChildren()){
                             if(ds.getKey().compareTo("PowerStatus") != 0 && ds.getKey().compareTo("ConnStatus") != 0) {
                                 FridgeStatus fs = ds.getValue(FridgeStatus.class);
-                                double key = Double.valueOf(ds.getKey());
-                                long d = sdf2.parse(ds.getKey()).getTime();
-//                                long d = sdf2.parse(ds.getKey()).getMonth();
-                                dpBills[indx] = new DataPoint(d, fs.electricityBill);
-                                dpFridge[indx] = new DataPoint(d, (fs.electricityBill * (fs.fridgePercentage/100)));
+                                monthlist[indx] = getMonth(ds.getKey());
 
-                                if(indx == 0){
-                                    lowest = d;
-                                } else if (indx == childCount - 3){
-                                    highest = d;
-                                }
+                                float fBill = fs.electricityBill * (fs.fridgePercentage/100);
+                                billEntries.add(new BarEntry(indx, new float[]{fBill, fs.electricityBill}));
 
+                                avgBill += fs.electricityBill;
+                                avgFr += fBill;
                                 indx++;
-
                             }
                         }
-                        seriesBill.resetData(dpBills);
-                        seriesFridge.resetData(dpFridge);
+                        avgBill /= (childCount-2);
+                        avgFr /= (childCount-2);
 
-                        graphBill.getViewport().setMinX(lowest - ((highest - lowest)/childCount-1));
-                        graphBill.getViewport().setMaxX(highest +  ((highest - lowest)/childCount-1));
-                        //graphBill.getGridLabelRenderer().setNumHorizontalLabels(childCount);
+                        textViewAvgBill.setText(String.format("Php %.2f", avgBill));
+                        textViewAvgFrCon.setText(String.format("Php %.2f", avgFr));
+
+                        dataSetBill = new BarDataSet(billEntries, " ");
+                        dataSetBill.setColors(colors);
+                        dataSetBill.setStackLabels(new String[]{"Fridge Contribution", "Total Bill"});
+                        dataset.add(dataSetBill);
+
+                        billChart.setData(new BarData(dataset));
+                        billChart.getAxisLeft().setDrawGridLines(false);
+                        billChart.getXAxis().setDrawGridLines(false);
+                        billChart.getXAxis().setPosition(XAxis.XAxisPosition.TOP);
+                        billChart.setHighlightFullBarEnabled(true);
+                        billChart.getXAxis().setValueFormatter(new ValueFormatter() {
+                            @Override
+                            public String getAxisLabel(float value, AxisBase axis) {
+                                return months.get((int)monthlist[(int)value]);
+                                }});
+                        billChart.animateX(1500, Easing.EaseInQuad);
                     }
                 }
                 catch (Exception e){ e.printStackTrace(); }
@@ -683,28 +608,32 @@ public class UserC {
         }
     }
 
+    private int getMonth(String s){
+        return Integer.parseInt(s.substring(4)) - 1;
+    }
+
     private String getMonthYear(String s){
         String retVal = "";
 
-        switch (s.substring(4)){
+        switch (s.substring(2)){
             case "01":
-                retVal = "Jan ";
+                retVal = "Jan";
                 break;
 
             case "02":
-                retVal = "Feb ";
+                retVal = "Feb";
                 break;
 
             case "03":
-                retVal = "Mar ";
+                retVal = "Mar";
                 break;
 
             case "04":
-                retVal = "Apr ";
+                retVal = "Apr";
                 break;
 
             case "05":
-                retVal = "May ";
+                retVal = "May";
                 break;
 
             case "06":
@@ -712,31 +641,29 @@ public class UserC {
                 break;
 
             case "07":
-                retVal = "Jul ";
+                retVal = "Jul";
                 break;
 
             case "08":
-                retVal = "Aug ";
+                retVal = "Aug";
                 break;
 
             case "09":
-                retVal = "Sept ";
+                retVal = "Sept";
                 break;
 
             case "10":
-                retVal = "Oct ";
+                retVal = "Oct";
                 break;
 
             case "11":
-                retVal = "Nov ";
+                retVal = "Nov";
                 break;
 
             case "12":
-                retVal = "Dec ";
+                retVal = "Dec";
                 break;
         }
-        retVal += s.substring(0,4);
-
         return retVal;
     }
 

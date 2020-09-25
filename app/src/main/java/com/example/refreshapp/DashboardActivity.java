@@ -2,7 +2,11 @@
 
  import androidx.appcompat.app.AppCompatActivity;
 
+ import android.app.AlertDialog;
+ import android.content.Context;
+ import android.content.DialogInterface;
  import android.content.Intent;
+ import android.net.ConnectivityManager;
  import android.os.Bundle;
  import android.view.Menu;
  import android.view.MenuInflater;
@@ -28,14 +32,11 @@
     private Switch switchPowerStatus;
 
     //  Controller
-    public UserC userc = null;
+//    public UserC userc = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        requestWindowFeature(Window.FEATURE_NO_TITLE); //will hide the title
-//        getSupportActionBar().hide();
-        //setSupportActionBar(findViewById(R.id.));
 
         setContentView(R.layout.activity_dashboard);
         setTitle("Dashboard");
@@ -47,10 +48,13 @@
             startActivity(new Intent(this, LoginActivity.class));
         }
 
-        userc = new UserC();
+        final UserC userc = (UserC) getApplicationContext();
+        userc.initialize();
         userc.setDashboardIds(this);
         userc.setDashboardListeners(this);
+        userc.setSwitchListener( this );
         findViews();
+        checkNetworkConnection();
     }
 
      public boolean onCreateOptionsMenu(Menu menu) {
@@ -69,7 +73,6 @@
         linearLayoutEnergyCost.setOnClickListener( this );
         linearLayoutBill.setOnClickListener( this );
         switchPowerStatus.setOnClickListener( this );
-        userc.setSwitchListener( this );
     }
 
     @Override
@@ -91,14 +94,16 @@
         else if ( v == switchPowerStatus){
             Boolean status = switchPowerStatus.isChecked();
             Toast.makeText(DashboardActivity.this, "Turning fridge " + (status ? "on" : "off"), Toast.LENGTH_LONG).show();
-            userc.setPowerStatus(status);
+            final UserC u = (UserC)getApplicationContext();
+            u.setPowerStatus(status);
         }
     }
 
      public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.actionRefresh:
-                userc.setDashboardListeners(this);
+                final UserC u = (UserC)getApplicationContext();
+                u.setDashboardListeners(this);
                 Toast.makeText(DashboardActivity.this, "Updating", Toast.LENGTH_LONG).show();
                 return true;
 
@@ -115,5 +120,22 @@
             default:
                 return false;
         }
+     }
+
+     public void checkNetworkConnection(){
+         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+         if(cm.getActiveNetwork() == null) {
+             AlertDialog.Builder builder = new AlertDialog.Builder(this);
+             builder.setTitle("No internet Connection");
+             builder.setMessage("Please turn on internet connection to continue");
+             builder.setNegativeButton("close", new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                     dialog.dismiss();
+                 }
+             });
+             AlertDialog alertDialog = builder.create();
+             alertDialog.show();
+         }
      }
 }

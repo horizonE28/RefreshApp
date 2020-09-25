@@ -15,7 +15,6 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class Bill extends AppCompatActivity {
-    private UserC userC = new UserC();
     String TAG = "Bill";
 
     private Button buttonSelectMonth;
@@ -34,6 +33,10 @@ public class Bill extends AppCompatActivity {
         buttonSelectMonth = findViewById(R.id.buttonSelectMonth);
         buttonAddBill = findViewById(R.id.buttonAddBill);
         editTextAmount = findViewById(R.id.editTExtBillAmount);
+
+        final UserC userC = (UserC) getApplicationContext();
+        userC.setBillIds(this);
+        userC.setBillListeners(this);
 
         buttonAddBill.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,9 +70,6 @@ public class Bill extends AppCompatActivity {
     @Override
     protected void onStart(){
         super.onStart();
-
-        userC.setBillIds(this);
-        userC.setBillListeners(this);
     }
 
     private void setPicker(){

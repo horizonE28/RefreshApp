@@ -22,26 +22,30 @@
             <LinearLayout
                 android:id="@+id/linearLayoutTemp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="200dp"
                 android:layout_margin="10dip"
-                android:background="@drawable/border"
+                android:background="@drawable/tempbg"
                 android:orientation="vertical"
                 android:padding="10dip"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
-
+                
                 <!-- Temperature Header -->
                 <TextView
+                    android:id="@+id/textViewTempHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
                     android:text="@string/temperatureLabel"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <!-- Freezer container -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/linearLayoutFreezer"
+                    android:layout_width="250dp"
                     android:layout_height="wrap_content"
+                    android:layout_below="@id/textViewTempHeader"
                     android:layout_margin="10dip"
                     android:orientation="horizontal">
 
@@ -66,8 +70,10 @@
 
                 <!-- Chiller container -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/linearLayoutChiller"
+                    android:layout_width="250dp"
                     android:layout_height="wrap_content"
+                    android:layout_below="@id/linearLayoutFreezer"
                     android:layout_margin="10dip"
                     android:orientation="horizontal">
 
@@ -92,8 +98,9 @@
 
                 <!-- Crisper container -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="250dp"
                     android:layout_height="wrap_content"
+                    android:layout_below="@id/linearLayoutChiller"
                     android:layout_margin="10dip"
                     android:orientation="horizontal">
 
@@ -123,9 +130,9 @@
             <LinearLayout
                 android:id="@+id/linearLayoutEnergyCost"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="200dp"
                 android:layout_margin="10dip"
-                android:background="@drawable/border"
+                android:background="@drawable/energycon_bg"
                 android:orientation="vertical"
                 android:padding="10dip"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -141,7 +148,7 @@
 
                 <!-- Current container -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="250dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dip"
                     android:orientation="horizontal">
@@ -167,9 +174,8 @@
 
                 <!-- Power consumption container -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_margin="10dip"
                     android:orientation="horizontal">
 
@@ -210,9 +216,9 @@
             <LinearLayout
                 android:id="@+id/linearLayoutBill"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="150dp"
                 android:layout_margin="10dip"
-                android:background="@drawable/border"
+                android:background="@drawable/bills_bg"
                 android:orientation="vertical"
                 android:padding="10dip"
                 app:layout_constraintBottom_toTopOf="@+id/buttonLogout"
